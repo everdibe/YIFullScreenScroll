@@ -359,28 +359,21 @@ static char __isFullScreenScrollViewKey;
             if (!self.layoutingUIBarsEnabled) return;
             if (!self.isViewVisible) return;
             
-//            CGPoint newPoint = [change[NSKeyValueChangeNewKey] CGPointValue];
-//            CGPoint oldPoint = [change[NSKeyValueChangeOldKey] CGPointValue];
-//            
-//            CGFloat deltaY = newPoint.y - oldPoint.y;
-//            
-//            [self _layoutUIBarsWithDeltaY:deltaY];
-            
             CGPoint newPoint = [change[NSKeyValueChangeNewKey] CGPointValue];
             CGPoint oldPoint = [change[NSKeyValueChangeOldKey] CGPointValue];
             
             CGFloat deltaY = newPoint.y - oldPoint.y;
             
-            LOG(@"oldY: %f newY: %f", oldPoint.y, newPoint.y);
+            NSLog(@"oldY: %f newY: %f", oldPoint.y, newPoint.y);
             
             if (newPoint.y < -([self navigationBar].frame.size.height + 20.f) || oldPoint.y < -([self navigationBar].frame.size.height + 20.f)) {
-                LOG(@"無視");
+                NSLog(@"無視");
                 return;
             }
             
             CGFloat maxY = self.scrollView.contentSize.height - self.scrollView.frame.size.height;
             if (newPoint.y >= maxY || oldPoint.y >= maxY) {
-                LOG(@"無視");
+                NSLog(@"無視");
                 return;
             }
             
@@ -635,14 +628,17 @@ static char __isFullScreenScrollViewKey;
                 insets.bottom += tabBarSuperviewHeight-tabBar.top;
             }
         }
-        scrollView.scrollIndicatorInsets = insets;
         
-        // delegation
-        if (canLayoutUIBars) {
-            if ([_delegate respondsToSelector:@selector(fullScreenScrollDidLayoutUIBars:)]) {
-                [_delegate fullScreenScrollDidLayoutUIBars:self];
+        __weak typeof(self) weakSelf = self;
+        [UIView performWithoutAnimation:^{
+            weakSelf.scrollView.scrollIndicatorInsets = insets;
+            // delegation
+            if (canLayoutUIBars) {
+                if ([weakSelf.delegate respondsToSelector:@selector(fullScreenScrollDidLayoutUIBars:)]) {
+                    [weakSelf.delegate fullScreenScrollDidLayoutUIBars:self];
+                }
             }
-        }
+        }];
     }
 }
 
