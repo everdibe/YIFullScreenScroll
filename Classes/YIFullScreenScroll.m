@@ -364,16 +364,13 @@ static char __isFullScreenScrollViewKey;
             
             CGFloat deltaY = newPoint.y - oldPoint.y;
             
-            NSLog(@"oldY: %f newY: %f", oldPoint.y, newPoint.y);
-            
-            if (newPoint.y < -([self navigationBar].frame.size.height + 20.f) || oldPoint.y < -([self navigationBar].frame.size.height + 20.f)) {
-                NSLog(@"無視");
+            CGFloat minY = -([self navigationBar].frame.size.height + self.additionalNavBarShiftForIOS7StatusBar);
+            if (newPoint.y <  minY || oldPoint.y < minY) {
                 return;
             }
             
             CGFloat maxY = self.scrollView.contentSize.height - self.scrollView.frame.size.height;
             if (newPoint.y >= maxY || oldPoint.y >= maxY) {
-                NSLog(@"無視");
                 return;
             }
             
@@ -777,6 +774,7 @@ static char __isFullScreenScrollViewKey;
 // removes old & add new custom background for UINavigationBar/UIToolbar
 - (void)_addCustomBackgroundOnUIBar:(UIView*)bar
 {
+    return;
     if (!bar) return;
     if (bar.subviews.count == 0) return;
     
