@@ -374,7 +374,7 @@ static char __isFullScreenScrollViewKey;
                 return;
             }
             
-            if (deltaY > 0) {
+            if (deltaY > 0 && newPoint.y > 0) {
                 [self hideUIBarsAnimated:YES];
             }else if (deltaY < 0) {
                 [self showUIBarsAnimated:YES];
