@@ -247,50 +247,21 @@ static char __isFullScreenScrollViewKey;
 
 - (void)showUIBarsAnimated:(BOOL)animated
 {
-    [self showUIBarsAnimated:animated completion:NULL];
-}
-
-- (void)showUIBarsAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
-{
-    if (!self.enabled) return;
-    
-    self.areUIBarsAnimating = YES;
-    
-    if (animated) {
-        
-        __weak typeof(self) weakSelf = self;
-        
-        [UIView animateWithDuration:self.showHideAnimationDuration animations:^{
-            
-            // pretend to scroll up by 50 pt which is longer than navBar/toolbar/tabBar height
-            [weakSelf _layoutUIBarsWithDeltaY:-50-self.additionalNavBarShiftForIOS7StatusBar];
-            
-        } completion:^(BOOL finished) {
-            
-            weakSelf.areUIBarsAnimating = NO;
-            
-            if (completion) {
-                completion(finished);
-            }
-            
-        }];
-    }
-    else {
-        [self _layoutUIBarsWithDeltaY:-50-self.additionalNavBarShiftForIOS7StatusBar];
-        self.areUIBarsAnimating = NO;
-    }
+    [self setHiddenUIBars:NO animated:animated completion:NULL];
 }
 
 - (void)hideUIBarsAnimated:(BOOL)animated
 {
-    [self hideUIBarsAnimated:animated completion:NULL];
+    [self setHiddenUIBars:YES animated:animated completion:NULL];
 }
 
-- (void)hideUIBarsAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
+- (void)setHiddenUIBars:(BOOL)hidden animated:(BOOL)animated completion:(void (^)(BOOL finished))completion
 {
     if (!self.enabled) return;
     
     self.areUIBarsAnimating = YES;
+    
+    CGFloat deltaY = (50+self.additionalNavBarShiftForIOS7StatusBar) * (hidden ? 1 : -1);
     
     if (animated) {
         
@@ -299,7 +270,7 @@ static char __isFullScreenScrollViewKey;
         [UIView animateWithDuration:self.showHideAnimationDuration animations:^{
             
             // pretend to scroll up by 50 pt which is longer than navBar/toolbar/tabBar height
-            [weakSelf _layoutUIBarsWithDeltaY:50+self.additionalNavBarShiftForIOS7StatusBar];
+            [weakSelf _layoutUIBarsWithDeltaY:deltaY];
             
         } completion:^(BOOL finished) {
             
@@ -312,7 +283,7 @@ static char __isFullScreenScrollViewKey;
         }];
     }
     else {
-        [self _layoutUIBarsWithDeltaY:50+self.additionalNavBarShiftForIOS7StatusBar];
+        [self _layoutUIBarsWithDeltaY:deltaY];
         self.areUIBarsAnimating = NO;
     }
 }
