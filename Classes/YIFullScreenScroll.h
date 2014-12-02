@@ -105,6 +105,8 @@ typedef NS_ENUM(NSInteger, YIFullScreenScrollStyle) {
 // if you use '-scrollViewDidScroll:'.
 //
 - (void)fullScreenScrollDidLayoutUIBars:(YIFullScreenScroll*)fullScreenScroll;
+- (void)fullScreenScroll:(YIFullScreenScroll*)fullScreenScroll willSetHidden:(BOOL)hidden animated:(BOOL)animated;
+- (void)fullScreenScroll:(YIFullScreenScroll*)fullScreenScroll didSetHidden:(BOOL)hidden animated:(BOOL)animated;
 
 @end
 

@@ -263,6 +263,10 @@ static char __isFullScreenScrollViewKey;
     
     CGFloat deltaY = (50+self.additionalNavBarShiftForIOS7StatusBar) * (hidden ? 1 : -1);
     
+    if ([self.delegate respondsToSelector:@selector(fullScreenScroll:willSetHidden:animated:)]) {
+        [self.delegate fullScreenScroll:self willSetHidden:hidden animated:animated];
+    }
+    
     if (animated) {
         
         __weak typeof(self) weakSelf = self;
@@ -276,6 +280,10 @@ static char __isFullScreenScrollViewKey;
             
             weakSelf.areUIBarsAnimating = NO;
             
+            if ([weakSelf.delegate respondsToSelector:@selector(fullScreenScroll:didSetHidden:animated:)]) {
+                [weakSelf.delegate fullScreenScroll:weakSelf didSetHidden:hidden animated:YES];
+            }
+            
             if (completion) {
                 completion(finished);
             }
@@ -285,6 +293,10 @@ static char __isFullScreenScrollViewKey;
     else {
         [self _layoutUIBarsWithDeltaY:deltaY];
         self.areUIBarsAnimating = NO;
+        
+        if ([self.delegate respondsToSelector:@selector(fullScreenScroll:didSetHidden:animated:)]) {
+            [self.delegate fullScreenScroll:self didSetHidden:hidden animated:NO];
+        }
     }
 }
 
