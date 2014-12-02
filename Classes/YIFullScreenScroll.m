@@ -82,6 +82,7 @@ static char __isFullScreenScrollViewKey;
 @interface YIFullScreenScroll ()
 
 @property (nonatomic) BOOL areUIBarsAnimating;
+@property (nonatomic) BOOL areUIBarsHidden;
 @property (nonatomic) BOOL isViewVisible;
 @property (nonatomic) BOOL hasViewAppearedBefore;
 
@@ -268,8 +269,10 @@ static char __isFullScreenScrollViewKey;
 - (void)setHiddenUIBars:(BOOL)hidden animated:(BOOL)animated completion:(void (^)(BOOL finished))completion
 {
     if (!self.enabled) return;
+    if (self.areUIBarsHidden == hidden) return;
     
     self.areUIBarsAnimating = YES;
+    self.areUIBarsHidden = hidden;
     
     CGFloat deltaY = (50+self.additionalNavBarShiftForIOS7StatusBar) * (hidden ? 1 : -1);
     
