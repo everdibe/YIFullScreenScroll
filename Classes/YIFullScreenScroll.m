@@ -247,12 +247,22 @@ static char __isFullScreenScrollViewKey;
 
 - (void)showUIBarsAnimated:(BOOL)animated
 {
-    [self setHiddenUIBars:NO animated:animated completion:NULL];
+    [self showUIBarsAnimated:animated completion:NULL];
+}
+
+- (void)showUIBarsAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
+{
+    [self setHiddenUIBars:NO animated:animated completion:completion];
 }
 
 - (void)hideUIBarsAnimated:(BOOL)animated
 {
-    [self setHiddenUIBars:YES animated:animated completion:NULL];
+    [self hideUIBarsAnimated:animated completion:NULL];
+}
+
+- (void)hideUIBarsAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
+{
+    [self setHiddenUIBars:YES animated:animated completion:completion];
 }
 
 - (void)setHiddenUIBars:(BOOL)hidden animated:(BOOL)animated completion:(void (^)(BOOL finished))completion
