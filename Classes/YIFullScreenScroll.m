@@ -82,6 +82,7 @@ static char __isFullScreenScrollViewKey;
 @interface YIFullScreenScroll ()
 
 @property (nonatomic) BOOL areUIBarsAnimating;
+@property (nonatomic) BOOL areUIBarsHidden;
 @property (nonatomic) BOOL isViewVisible;
 @property (nonatomic) BOOL hasViewAppearedBefore;
 
@@ -252,33 +253,7 @@ static char __isFullScreenScrollViewKey;
 
 - (void)showUIBarsAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
 {
-    if (!self.enabled) return;
-    
-    self.areUIBarsAnimating = YES;
-    
-    if (animated) {
-        
-        __weak typeof(self) weakSelf = self;
-        
-        [UIView animateWithDuration:self.showHideAnimationDuration animations:^{
-            
-            // pretend to scroll up by 50 pt which is longer than navBar/toolbar/tabBar height
-            [weakSelf _layoutUIBarsWithDeltaY:-50-self.additionalNavBarShiftForIOS7StatusBar];
-            
-        } completion:^(BOOL finished) {
-            
-            weakSelf.areUIBarsAnimating = NO;
-            
-            if (completion) {
-                completion(finished);
-            }
-            
-        }];
-    }
-    else {
-        [self _layoutUIBarsWithDeltaY:-50-self.additionalNavBarShiftForIOS7StatusBar];
-        self.areUIBarsAnimating = NO;
-    }
+    [self setHiddenUIBars:NO animated:animated completion:completion];
 }
 
 - (void)hideUIBarsAnimated:(BOOL)animated
@@ -288,9 +263,22 @@ static char __isFullScreenScrollViewKey;
 
 - (void)hideUIBarsAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
 {
+    [self setHiddenUIBars:YES animated:animated completion:completion];
+}
+
+- (void)setHiddenUIBars:(BOOL)hidden animated:(BOOL)animated completion:(void (^)(BOOL finished))completion
+{
     if (!self.enabled) return;
+    if (self.areUIBarsHidden == hidden) return;
     
     self.areUIBarsAnimating = YES;
+    self.areUIBarsHidden = hidden;
+    
+    CGFloat deltaY = (50+self.additionalNavBarShiftForIOS7StatusBar) * (hidden ? 1 : -1);
+    
+    if ([self.delegate respondsToSelector:@selector(fullScreenScroll:willSetHidden:animated:)]) {
+        [self.delegate fullScreenScroll:self willSetHidden:hidden animated:animated];
+    }
     
     if (animated) {
         
@@ -299,11 +287,15 @@ static char __isFullScreenScrollViewKey;
         [UIView animateWithDuration:self.showHideAnimationDuration animations:^{
             
             // pretend to scroll up by 50 pt which is longer than navBar/toolbar/tabBar height
-            [weakSelf _layoutUIBarsWithDeltaY:50+self.additionalNavBarShiftForIOS7StatusBar];
+            [weakSelf _layoutUIBarsWithDeltaY:deltaY];
             
         } completion:^(BOOL finished) {
             
             weakSelf.areUIBarsAnimating = NO;
+            
+            if ([weakSelf.delegate respondsToSelector:@selector(fullScreenScroll:didSetHidden:animated:)]) {
+                [weakSelf.delegate fullScreenScroll:weakSelf didSetHidden:hidden animated:YES];
+            }
             
             if (completion) {
                 completion(finished);
@@ -312,8 +304,12 @@ static char __isFullScreenScrollViewKey;
         }];
     }
     else {
-        [self _layoutUIBarsWithDeltaY:50+self.additionalNavBarShiftForIOS7StatusBar];
+        [self _layoutUIBarsWithDeltaY:deltaY];
         self.areUIBarsAnimating = NO;
+        
+        if ([self.delegate respondsToSelector:@selector(fullScreenScroll:didSetHidden:animated:)]) {
+            [self.delegate fullScreenScroll:self didSetHidden:hidden animated:NO];
+        }
     }
 }
 
