@@ -770,7 +770,6 @@ static char __isFullScreenScrollViewKey;
 // removes old & add new custom background for UINavigationBar/UIToolbar
 - (void)_addCustomBackgroundOnUIBar:(UIView*)bar
 {
-    return;
     if (!bar) return;
     if (bar.subviews.count == 0) return;
     
